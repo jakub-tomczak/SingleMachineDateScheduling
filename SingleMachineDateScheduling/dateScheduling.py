@@ -3,13 +3,7 @@ from options import *
 import numpy as np
 from methodRunner import invokeMethod
 from IOmanager import getTest, dumpResults
-
-def tradeOffMethod(arguments):
-    #arguments to local vars
-    instance = arguments['instance']
-    h = arguments['h']
-
-    return 0
+from heuristics import tradeOffMethod
 
 def main(): 
     arguments = { 
