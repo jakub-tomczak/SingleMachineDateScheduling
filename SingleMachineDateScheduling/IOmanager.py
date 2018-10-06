@@ -26,7 +26,7 @@ def readTestFile(instanceSize):
 def getTest(n, k):
     return readTestFile(n)[k]
 
-def dumpResults(arguments, result):
+def dumpResults(arguments, result, comment = ''):
     fullpath = os.path.join(options.outputDirectory, 'out.json')
     data = []
     if os.path.exists(fullpath):
@@ -48,7 +48,8 @@ def dumpResults(arguments, result):
         'h' : arguments['h'],
         'k' : arguments['k'],
         'n' : arguments['n'],
-        'iterations': result['returnedValue'][0]
+        'iterations': result['returnedValue'][0],
+        'comment' : comment
     })
     
     with open(fullpath, 'w') as outFile:

@@ -14,8 +14,8 @@ def tradeOffMethod(arguments):
     
     earlinessArray = np.array(sorted(instance, key=lambda task: task[4], reverse=True)) #sort by the earliness coeff
     tardinessArray = np.array(sorted(instance, key=lambda task: task[5], reverse=True)) #sort by the tardiness coeff
-    print(earlinessArray)
-    print(tardinessArray)
+    #print(earlinessArray)
+    #print(tardinessArray)
     currentLength = 0
     currentCost = 0
     #iteration of the algorithm
@@ -34,7 +34,7 @@ def tradeOffMethod(arguments):
     
     while(currentLength < tasksLength and iter < 15):
         if h > .5 and currentLength < dueDate and canAddAnotherTask:
-            print(iter, 'earliness stage')
+            #print(iter, 'earliness stage')
             #prefer earliness - earliness stage
             #tasks that will fit before dueDate
             #x[4] - earliness penalty when adding this element in the current iteration
@@ -50,7 +50,7 @@ def tradeOffMethod(arguments):
                 continue
             bestTask = earlinessArray[0]
             
-            print(iter, ' > ',currentLength, bestTask, currentCost)
+            #print(iter, ' > ',currentLength, bestTask, currentCost)
             #task used - assign its global id (to be found in tardinessArray)
             tasksAssigned.append(int(bestTask[3])) #[3] -> index
             #and mark it as used
@@ -59,7 +59,7 @@ def tradeOffMethod(arguments):
             currentLength += bestTask[0]
             currentCost += (dueDate - currentLength)*bestTask[1]
         else:
-            print(iter, 'tardiness stage')
+            #print(iter, 'tardiness stage')
             #prefer tardiness - tardiness stage
             if not recalculatedTardinessArray:
                 #take only not assigned elements
@@ -82,7 +82,7 @@ def tradeOffMethod(arguments):
             
             bestTask = tardinessArray[0]
             
-            print(iter, ' > ',currentLength, bestTask, currentCost)
+            #print(iter, ' > ',currentLength, bestTask, currentCost)
             #task used - assign its global id (to be found in tardinessArray)
             tasksAssigned.append(int(bestTask[3])) #[3] -> index
             #and mark it as used

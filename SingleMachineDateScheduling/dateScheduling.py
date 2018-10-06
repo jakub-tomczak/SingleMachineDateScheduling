@@ -21,6 +21,8 @@ def main():
     if result['returnedValue'] != None and options.printResultToStdout:
         print('Time is {:0.9f} the result: {}'.
             format(result['time'], result['returnedValue']))
+        if options.dumpResults:
+            dumpResults(arguments, result)
     else:
         print('Execution time is {:0.20f}'.format( result['time']) )
 
