@@ -92,4 +92,4 @@ def tradeOffMethod(arguments):
             currentCost += (currentLength+bestTask[0]-dueDate)*bestTask[1]
         iter += 1
     print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, currentLength, dueDate, currentCost))
-    return 0
+    return (iter, currentLength, dueDate, currentCost, tasksLength)

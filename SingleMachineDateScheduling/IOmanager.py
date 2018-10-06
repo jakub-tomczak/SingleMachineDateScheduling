@@ -1,4 +1,5 @@
 import os
+import json
 import numpy as np
 from options import *
 
@@ -25,9 +26,30 @@ def readTestFile(instanceSize):
 def getTest(n, k):
     return readTestFile(n)[k]
 
-def dumpResults(name, result):
-    fullpath = os.path.join(options.outputDirectory, 'out.txt')
-    with open(fullpath, 'a') as outFile:
-        outFile.write('{};{}\n'.format(
-            name, result
-        ))
+def dumpResults(arguments, result):
+    fullpath = os.path.join(options.outputDirectory, 'out.json')
+    data = []
+    if os.path.exists(fullpath):
+        with open(fullpath, 'r') as inFile:
+            inFile.seek(0,2) #go the end
+            size = inFile.tell()
+            inFile.seek(0,0) #return to the beginning
+            if size > 0:
+                try:
+                    data = json.load(inFile)
+                except json.decoder.JSONDecodeError:
+                    pass #content may be not a valid json content
+    data.append({ 
+        'time' : result['time'],
+        'cost' : result['returnedValue'][3],
+        'length' : result['returnedValue'][1],
+        'dueDate': result['returnedValue'][2],
+        'tasksLength' : result['returnedValue'][4],
+        'h' : arguments['h'],
+        'k' : arguments['k'],
+        'n' : arguments['n'],
+        'iterations': result['returnedValue'][0]
+    })
+    
+    with open(fullpath, 'w') as outFile:
+        json.dump(data, outFile, indent=1)
