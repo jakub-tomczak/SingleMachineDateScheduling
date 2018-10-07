@@ -111,9 +111,13 @@ def tradeOffMethod(arguments):
             bestTask[6] = 1 #TODO rewrite it, in order not to use a number as a flag -> it's float!
             #prolong already assigned tasks length
             currentLength += bestTask[0]
-            currentCost += (currentLength+bestTask[0]-dueDate)*bestTask[1]
+            addedCost = (tardinessDueDate-currentTardinessLength)*bestTask[2]
+            currentTardinessLength += bestTask[0]
+            currentCost += addedCost
             if options.debug:
                 print('iter {} -> tardiness: chosen task x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[0], bestTask[2], currentLength, dueDate, currentCost, addedCost))
         iter += 1
+    tardinessAssigned.reverse()
+    tasksAssigned = tasksAssigned + tardinessAssigned
     resultCorrect = 1 if currentLength == tasksLength else 0
     return (iter, currentLength, dueDate, currentCost, tasksLength, tasksAssigned, resultCorrect)
