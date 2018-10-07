@@ -49,7 +49,9 @@ def dumpResults(arguments, result, comment = ''):
         'k' : arguments['k'],
         'n' : arguments['n'],
         'iterations': result['returnedValue'][0],
-        'comment' : comment
+        'comment' : comment,
+        'assignmentOrder' : result['returnedValue'][5],
+        'resultCorrect' : result['returnedValue'][6]
     })
     
     with open(fullpath, 'w') as outFile:

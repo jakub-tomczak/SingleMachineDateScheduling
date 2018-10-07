@@ -91,5 +91,5 @@ def tradeOffMethod(arguments):
             currentLength += bestTask[0]
             currentCost += (currentLength+bestTask[0]-dueDate)*bestTask[1]
         iter += 1
-    print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, currentLength, dueDate, currentCost))
-    return (iter, currentLength, dueDate, currentCost, tasksLength)
+    resultCorrect = 1 if currentLength == tasksLength else 0
+    return (iter, currentLength, dueDate, currentCost, tasksLength, tasksAssigned, resultCorrect)
