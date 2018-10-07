@@ -5,6 +5,11 @@ from methodRunner import invokeMethod
 from IOmanager import getTest, dumpResults
 from heuristics import tradeOffMethod
 
+def printInstance(instance):
+    for i in range(len(instance)):
+        print('x:{}, a:{}, b:{}, index:{}, earliness:{}, tardiness:{}'.format(
+            instance[i,0], instance[i,1], instance[i,2], instance[i,3], instance[i,4], instance[i,5]
+        ))
 def instanceRunner(arguments):
     arguments['instance'] = getTest(n = arguments['n'], k = arguments['k'])
     methodToInvoke = arguments['method']
