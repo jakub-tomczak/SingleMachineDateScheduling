@@ -5,7 +5,7 @@ def tradeOffMethod(arguments):
     instance = arguments['instance']
     h = arguments['h']
     tasksLength = sum([x[0] for x in instance]) #sum by index 0 = p
-    dueDate = int(h*tasksLength) 
+    dueDate = h*tasksLength
     
     #calculate penalties
     #for an earliness
