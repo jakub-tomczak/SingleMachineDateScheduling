@@ -116,8 +116,17 @@ def tradeOffMethod(arguments):
             currentCost += addedCost
             if options.debug:
                 print('iter {} -> tardiness: chosen task x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[0], bestTask[2], currentLength, dueDate, currentCost, addedCost))
+
         iter += 1
+    
     tardinessAssigned.reverse()
     tasksAssigned = tasksAssigned + tardinessAssigned
+    if options.debug:
+        print("assigned tasks {}".format(tasksAssigned))
+    if arguments['n'] > 20:
+        tasksAssigned = []
+    if options.debug:
+        print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, currentLength, dueDate, currentCost))
+
     resultCorrect = 1 if currentLength == tasksLength else 0
     return (iter, currentLength, dueDate, currentCost, tasksLength, tasksAssigned, resultCorrect)
