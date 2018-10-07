@@ -1,4 +1,5 @@
 import numpy as np
+from options import options
 def tradeOffMethod(arguments):
     #arguments to local vars
     instance = arguments['instance']
@@ -58,6 +59,8 @@ def tradeOffMethod(arguments):
             #prolong already assigned tasks length
             currentLength += bestTask[0]
             currentCost += (dueDate - currentLength)*bestTask[1]
+            if options.debug:
+                print('iter {} -> earliness: chosen task x:{},a:{}, length {}, dueDate {}, cost {}'.format(iter, bestTask[0], bestTask[1], currentLength, dueDate, currentCost))
         else:
             #print(iter, 'tardiness stage')
             #prefer tardiness - tardiness stage
@@ -71,6 +74,8 @@ def tradeOffMethod(arguments):
                 # dueDate and currentLength 
                 tardinessArray[:, 5] = (dueDate - currentLength)*tardinessArray[:,2] #[:,2] -> tardiness coeff
                 recalculatedTardinessArray = True 
+                if options.debug:
+                    print('tardiness: assigned {}, to assign {}'.format(tasksAssigned, tardinessArray[:,3]))
             
             tardinessArray = np.array([x for x in tardinessArray if x[6]!=1 and x[0]+currentLength <= dueDate])
             
@@ -90,6 +95,8 @@ def tradeOffMethod(arguments):
             #prolong already assigned tasks length
             currentLength += bestTask[0]
             currentCost += (currentLength+bestTask[0]-dueDate)*bestTask[1]
+            if options.debug:
+                print('iter {} -> tardiness: chosen task x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[0], bestTask[2], currentLength, dueDate, currentCost, addedCost))
         iter += 1
     resultCorrect = 1 if currentLength == tasksLength else 0
     return (iter, currentLength, dueDate, currentCost, tasksLength, tasksAssigned, resultCorrect)
