@@ -26,11 +26,21 @@ def readTestFile(instanceSize):
 def getTest(n, k):
     return readTestFile(n)[k]
 
-def dumpResults(arguments, result, comment = ''):
-    fullpath = os.path.join(options.outputDirectory, 'out.json')
+def dumpResults(arguments, result, format, comment = ''):
+    methods = {
+        'json' : dumpJSONResult,
+        'txt' : dumpTXTResult
+    }
+    if format not in methods:
+        print('There is no method for this format: {}. Available types : {}'.format(format, methods.keys))
+    else:
+        methods[format](arguments, result, comment)
+
+def dumpJSONResult(arguments, result, comment):
+    path = os.path.join(options.outputDirectory, 'out.json')
     data = []
-    if os.path.exists(fullpath):
-        with open(fullpath, 'r') as inFile:
+    if os.path.exists(path):
+        with open(path, 'r') as inFile:
             inFile.seek(0,2) #go the end
             size = inFile.tell()
             inFile.seek(0,0) #return to the beginning
@@ -49,10 +59,17 @@ def dumpResults(arguments, result, comment = ''):
         'k' : arguments['k'],
         'n' : arguments['n'],
         'iterations': result['returnedValue'][0],
-        'comment' : comment,
+        'comment' : arguments['studentsIndex'],
         'assignmentOrder' : result['returnedValue'][5],
         'resultCorrect' : result['returnedValue'][6]
     })
     
-    with open(fullpath, 'w') as outFile:
+    with open(path, 'w') as outFile:
         json.dump(data, outFile, indent=1)
+
+def dumpTXTResult(arguments, result, comment):
+    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(arguments['studentsIndex'], arguments['n'], arguments['k'], int(arguments['h']*10)))
+    data = "{}\n{}".format(result['returnedValue'][3], " ".join(map(str, result['returnedValue'][5])) )
+    
+    with open(path, 'w') as outFile:
+        outFile.write(data)

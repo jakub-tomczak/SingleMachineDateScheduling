@@ -21,7 +21,7 @@ def instanceRunner(arguments):
         print('Time is {:0.9f} the result: {}'.
             format(result['time'], result['returnedValue']))
         if options.dumpResults:
-            dumpResults(arguments, result)
+            dumpResults(arguments, result, options.dumpFormat)
     else:
         print('Execution time is {:0.20f}'.format( result['time']) )
 
