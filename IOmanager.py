@@ -19,7 +19,7 @@ def readTestFile(instanceSize):
             return tests
     except FileNotFoundError:
         print('File `{}` not found.'.format(fullpath))
-        exit(0)
+        exit(1)
 
 #n = instance size
 #k = number of test
@@ -68,8 +68,10 @@ def dumpJSONResult(arguments, result, comment):
         json.dump(data, outFile, indent=1)
 
 def dumpTXTResult(arguments, result, comment):
-    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(arguments['studentsIndex'], arguments['n'], arguments['k'], int(arguments['h']*10)))
-    data = "{}\n{}".format(result['returnedValue'][3], " ".join(map(str, result['returnedValue'][5])) )
-    
-    with open(path, 'w') as outFile:
-        outFile.write(data)
+    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(arguments['studentsIndex'], arguments['n'], arguments['k']+1, int(arguments['h']*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
+    data = "{}\n{}".format(int(result['returnedValue'][3]), " ".join(map(str, result['returnedValue'][5])) )
+    try:
+        with open(path, 'w') as outFile:
+            outFile.write(data)
+    except:
+        exit(2)
