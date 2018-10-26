@@ -5,7 +5,7 @@ def tradeOffMethod(arguments):
     instance = arguments['instance']
     h = arguments['h']
     tasksLength = sum([x[0] for x in instance]) #sum by index 0 => task's length
-    dueDate = h*tasksLength
+    dueDate = int(h*tasksLength)
     currentLength = 0
     currentCost = 0
     
@@ -41,7 +41,7 @@ def tradeOffMethod(arguments):
         if earlinessStage:
             if not recalculatedEarlinessArray:
                 #take only not assigned elements
-                earlinessArray = np.array([x for x in earlinessArray if x[3] not in tasksAssigned])
+                earlinessArray = np.array([x for x in earlinessArray if x[3] not in tardinessAssigned])
                 if options.debug:
                     print('earliness: assigned {}, to assign {}'.format(tasksAssigned, earlinessArray[:,3]))
                 recalculatedEarlinessArray = True 
@@ -66,10 +66,16 @@ def tradeOffMethod(arguments):
             currentLength += bestTask[0]
 
             #put cost to add to another variable for debug purposes
-            costToAdd = (dueDate - currentLength)*bestTask[1]
+            if currentLength < dueDate:
+                #earliness stage was first
+                lengthToDueDate = dueDate - currentLength
+            else:
+                lengthToDueDate = dueDate - (currentLength - currentTardinessLength)
+            costToAdd = lengthToDueDate*bestTask[1]
             currentCost += costToAdd 
             if options.debug:
-                print('iter {} -> earliness: chosen task x:{},a:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[0], bestTask[1], currentLength, dueDate, currentCost, costToAdd))
+                print('adding {}*{}'.format(lengthToDueDate, bestTask[1]))
+                print('iter {} -> earliness: chosen task id={}, x:{},a:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[3], bestTask[0], bestTask[1], currentLength, dueDate, currentCost, costToAdd))
         else:
             #tardiness stage
             if not recalculatedTardinessArray:
@@ -80,7 +86,7 @@ def tradeOffMethod(arguments):
                     print('tardiness: assigned {}, to assign {}'.format(tasksAssigned, tardinessArray[:,3]))
             
             tardinessArray = np.array([x for x in tardinessArray if x[6]!=1 and 
-               ( h>0.5 or (tasksLength-dueDate)-currentLength-x[0] >=0) ]) #if h>0.5 then we don't care about the size - earliness stage was first
+               ( h>0.5 or (tasksLength-dueDate)-currentLength >=0) ]) #if h>0.5 then we don't care about the size - earliness stage was first
                #otherwise check if current task is not longer than the total time for tardiness stage
             
             #found no candidates for the bestTask, continue in earliness stage
@@ -93,14 +99,21 @@ def tradeOffMethod(arguments):
             bestTask = tardinessArray[0]
             tardinessAssigned.append(int(bestTask[3])) #[3] -> index
             bestTask[6] = 1 #TODO rewrite it, in order not to use a number as a flag -> it's float!
-            currentLength += bestTask[0]
             
-            currentTardinessLength += bestTask[0]
             #for the first task currentTardinessLength - we count the penalty based on the termination time
-            costToAdd = (tardinessDueDate-currentTardinessLength)*bestTask[2]
+            if currentLength < dueDate and currentTardinessLength == 0 and iter > 1:
+                lengthToDueDate = tasksLength - (currentLength + bestTask[0]) - (dueDate - currentLength)
+            else:
+                #tardiness phase was first
+                lengthToDueDate = tardinessDueDate - currentTardinessLength
+
+            currentLength += bestTask[0]            
+            currentTardinessLength += bestTask[0]
+            costToAdd = lengthToDueDate*bestTask[2]
             currentCost += costToAdd
             if options.debug:
-                print('iter {} -> tardiness: chosen task x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[0], bestTask[2], currentLength, dueDate, currentCost, costToAdd))
+                print("adding {}*{}".format(lengthToDueDate, bestTask[2]))
+                print('iter {} -> tardiness: chosen task id={}, x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'.format(iter, bestTask[3], bestTask[0], bestTask[2], currentLength, dueDate, currentCost, costToAdd))
 
         iter += 1
     
@@ -108,8 +121,8 @@ def tradeOffMethod(arguments):
     tasksAssigned = tasksAssigned + tardinessAssigned
     if options.debug:
         print("assigned tasks {}".format(tasksAssigned))
-    if arguments['n'] > 20:
-        tasksAssigned = []
+    #if arguments['n'] > 20:
+    #    tasksAssigned = []
     if options.debug:
         print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, currentLength, dueDate, currentCost))
 
