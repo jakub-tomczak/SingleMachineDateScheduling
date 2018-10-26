@@ -1,11 +1,10 @@
 import os
 import json
 import numpy as np
-from options import *
 
-def readTestFile(instanceSize):
-    assert instanceSize in options.instancesSizes, 'There is no test for an instance of a size %s' % instanceSize
-    fullpath = os.path.join(options.testsDirectory, 'sch{}.txt'.format(instanceSize))
+def readTestFile(instanceSize, programOptions):
+    assert instanceSize in programOptions.instancesSizes, 'There is no test for an instance of a size %s' % instanceSize
+    fullpath = os.path.join(programOptions.testsDirectory, 'sch{}.txt'.format(instanceSize))
     try:
         with open(fullpath, 'r') as instanceFile:
             numberOfTests = int(instanceFile.readline().strip())
@@ -23,20 +22,26 @@ def readTestFile(instanceSize):
 
 #n = instance size
 #k = number of test
-def getTest(n, k):
-    return readTestFile(n)[k]
+def getTest(instance, programOptions):
+    res = readTestFile(instance.n, programOptions)
+    if res is None or len(res) <= instance.k:
+        exit(2) 
+    return res[instance.k]
 
-def dumpResults(arguments, result, format, comment = ''):
+def dumpResults(arguments, result, programOptions, comment = ''):
     methods = {
         'json' : dumpJSONResult,
         'txt' : dumpTXTResult
     }
-    if format not in methods:
-        print('There is no method for this format: {}. Available types : {}'.format(format, methods.keys))
+    if programOptions.dumpFormat not in methods:
+        print('There is no method for this format: {}. Available types : {}'.format(programOptions.dumpFormat, methods.keys))
     else:
-        methods[format](arguments, result, comment)
+        try:
+            methods[programOptions.dumpFormat](arguments, result, programOptions, comment)
+        except:
+            exit(2)
 
-def dumpJSONResult(arguments, result, comment):
+def dumpJSONResult(arguments, result, options, comment):
     path = os.path.join(options.outputDirectory, 'out.json')
     data = []
     if os.path.exists(path):
@@ -50,28 +55,23 @@ def dumpJSONResult(arguments, result, comment):
                 except json.decoder.JSONDecodeError:
                     pass #content may be not a valid json content
     data.append({ 
-        'time' : result['time'],
-        'cost' : result['returnedValue'][3],
-        'length' : result['returnedValue'][1],
-        'dueDate': result['returnedValue'][2],
-        'tasksLength' : result['returnedValue'][4],
-        'h' : arguments['h'],
-        'k' : arguments['k'],
-        'n' : arguments['n'],
-        'iterations': result['returnedValue'][0],
+        'time' : result.time,
+        'cost' : result.cost,
+        'length' : result.length,
+        'dueDate': result.dueDate,
+        'h' : result.instance.h,
+        'k' : result.instance.k,
+        'n' : result.instance.n,
         'comment' : arguments['studentsIndex'],
-        'assignmentOrder' : result['returnedValue'][5],
-        'resultCorrect' : result['returnedValue'][6]
+        'assignmentOrder' : result.order
     })
     
     with open(path, 'w') as outFile:
         json.dump(data, outFile, indent=1)
 
-def dumpTXTResult(arguments, result, comment):
-    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(arguments['studentsIndex'], arguments['n'], arguments['k']+1, int(arguments['h']*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
-    data = "{}\n{}".format(int(result['returnedValue'][3]), " ".join(map(str, result['returnedValue'][5])) )
-    try:
-        with open(path, 'w') as outFile:
-            outFile.write(data)
-    except:
-        exit(2)
+def dumpTXTResult(arguments, result, options, comment):
+    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(result.instance.index, result.instance.n, result.instance.k+1, int(result.instance.h*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
+    data = "{}\n{}".format(int(result.cost), " ".join(map(str, result.order)) )
+
+    with open(path, 'w') as outFile:
+        outFile.write(data)
