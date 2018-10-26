@@ -33,14 +33,12 @@ def parseArguments():
                         help='Instance index, natural number in range <1,10>')
     parser.add_argument('-h', type=float,
                         help='Used to calculate due date, real number in range <0,1>')
-    parser.add_argument('-index', type=str, default=0,
-                        help='Student\'s index')
     args = parser.parse_args()
     if args.n is None or args.k is None or args.h is None:
         print("Not all parameters have been specified.Args = {}".format(args))
         exit(2)
     #k loaded from file should be in range <0,9>
-    return instance(n = args.n, k = args.k - 1, h = args.h, index=args.index )
+    return instance(n = args.n, k = args.k - 1, h = args.h, index="127083" )
 
 
 def main(instance): 
