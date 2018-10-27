@@ -2,7 +2,7 @@ import os
 import numpy as np
 import argparse
 from methodRunner import invokeMethod
-from IOmanager import getTest, dumpResults
+from IOmanager import getTest, dumpResults, debugPrinter
 from heuristics import tradeOffMethod
 from options import instance, options
 
@@ -11,17 +11,17 @@ def printInstance(instance):
         print('x:{}, a:{}, b:{}, index:{}, earliness:{}, tardiness:{}'.format(
             instance[i,0], instance[i,1], instance[i,2], instance[i,3], instance[i,4], instance[i,5]
         ))
-def instanceRunner(instance, programOptions):
+def instanceRunner(instance, programOptions, debugPrinter):
     instance.data = getTest(instance, programOptions)
     methodToInvoke = programOptions.method
 
-    result = invokeMethod(methodToInvoke, instance, programOptions)
+    result = invokeMethod(methodToInvoke, instance, debugPrinter)
 
     if result != None and programOptions.printResultToStdout:
         print('Time is {:0.9f} the result (cost): {}'.
             format(result.time, result.cost))
         if programOptions.dumpResults:
-            dumpResults(instance, result, programOptions)
+            dumpResults(result, programOptions)
     else:
         print('Execution time is {:0.20f}'.format( result.time) )
 
@@ -38,6 +38,7 @@ def parseArguments():
 def main(instance): 
     programOptions = options()
     programOptions.method = tradeOffMethod
+    printer = debugPrinter(instance, programOptions)
 
     try:
         validateInput(instance, programOptions)

@@ -4,10 +4,12 @@ class options:
         self.printResultToStdout = True
         self.testsDirectory = 'instances'
         self.outputDirectory = 'output'
+        self.debugDirectory = 'out_debug'
         self.instancesSizes = [10,20,50,100,200,500,1000]
         self.dumpResults = True
         self.dumpFormat = "txt"
-        self.debug = False
+        self.debug = True  #dump debug to a file
+        self.verboseDebug = False #print text during debug
 
 class instance:
     def __init__(self, n, k, h, index =''):

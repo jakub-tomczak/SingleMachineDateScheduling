@@ -28,7 +28,7 @@ def getTest(instance, programOptions):
         exit(2) 
     return res[instance.k]
 
-def dumpResults(arguments, result, programOptions, comment = ''):
+def dumpResults(result, programOptions, comment = ''):
     methods = {
         'json' : dumpJSONResult,
         'txt' : dumpTXTResult
@@ -37,11 +37,11 @@ def dumpResults(arguments, result, programOptions, comment = ''):
         print('There is no method for this format: {}. Available types : {}'.format(programOptions.dumpFormat, methods.keys))
     else:
         try:
-            methods[programOptions.dumpFormat](arguments, result, programOptions, comment)
+            methods[programOptions.dumpFormat](result, programOptions, comment)
         except:
             exit(2)
 
-def dumpJSONResult(arguments, result, options, comment):
+def dumpJSONResult(result, options, comment):
     path = os.path.join(options.outputDirectory, 'out.json')
     data = []
     if os.path.exists(path):
@@ -62,16 +62,36 @@ def dumpJSONResult(arguments, result, options, comment):
         'h' : result.instance.h,
         'k' : result.instance.k,
         'n' : result.instance.n,
-        'comment' : arguments['studentsIndex'],
+        'comment' : result.instance.index,
         'assignmentOrder' : result.order
     })
     
     with open(path, 'w') as outFile:
         json.dump(data, outFile, indent=1)
 
-def dumpTXTResult(arguments, result, options, comment):
+def dumpTXTResult(result, options, comment):
     path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(result.instance.index, result.instance.n, result.instance.k+1, int(result.instance.h*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
     data = "{}\n{}".format(int(result.cost), " ".join(map(str, result.order)) )
 
     with open(path, 'w') as outFile:
         outFile.write(data)
+
+class debugPrinter:
+    def __init__(self, instance, options):
+        self.instance = instance
+        self.options = options
+        self.path = os.path.join(options.debugDirectory, 'DEBUG_{}_{}_{}_{}.out'.format(instance.index, instance.n, instance.k+1, int(instance.h*10))) 
+        if options.debug:
+            import time
+            self.print('\n------------\n{}'.format( time.asctime(time.localtime(time.time())) ))
+
+    def print(self, data):
+        if self.options.debug:
+            data = '{}\n'.format(data)
+            if self.options.verboseDebug:
+                print(data)
+            try:
+                with open(self.path, 'a+') as outFile:
+                    outFile.write(data)
+            except Exception as e:
+                print("Couldn't dump debug data to a file {}. Cause: {}".format(self.path, e))

@@ -1,6 +1,8 @@
 import numpy as np
 from options import result
-def tradeOffMethod(instance, options):
+def tradeOffMethod(instance, debugPrinter):
+    np.set_printoptions(precision=2)
+    printer = debugPrinter
     methodResult = result(instance)
     #arguments to local vars
     tasksLength = sum([x[0] for x in instance.data]) #sum by index 0 => task's length
@@ -14,7 +16,7 @@ def tradeOffMethod(instance, options):
     
     earlinessArray = np.array(sorted(instance.data, key=lambda task: task[4], reverse=True)) #sort by the earliness ratio
     tardinessArray = np.array(sorted(instance.data, key=lambda task: task[5], reverse=True)) #sort by the tardiness ratio
-    
+    printer.print(instance.data[:, :6])
     #iteration of the algorithm
     iter = 0
     
@@ -39,8 +41,7 @@ def tradeOffMethod(instance, options):
             if not recalculatedEarlinessArray:
                 #take only not assigned elements
                 earlinessArray = np.array([x for x in earlinessArray if x[3] not in tardinessAssigned])
-                if options.debug:
-                    print('earliness: assigned {}, to assign {}'.format(tasksAssigned, earlinessArray[:,3]))
+                printer.print('earliness: assigned {}, to assign {}'.format(tasksAssigned, earlinessArray[:,3]))
                 recalculatedEarlinessArray = True 
             #x[4] - task's length to earliness penalty ratio
             #x[6]==1 task has been already assigned
@@ -70,18 +71,16 @@ def tradeOffMethod(instance, options):
                 lengthToDueDate = methodResult.dueDate - (methodResult.length - currentTardinessLength)
             costToAdd = lengthToDueDate*bestTask[1]
             methodResult.cost += costToAdd 
-            if options.debug:
-                print('adding {}*{}'.format(lengthToDueDate, bestTask[1]))
-                print('iter {} -> earliness: chosen task id={}, x:{},a:{}, length {}, dueDate {}, cost {}, added:{}'.
-                    format(iter, bestTask[3], bestTask[0], bestTask[1], methodResult.length, methodResult.dueDate, methodResult.cost, costToAdd))
+            printer.print('adding {}*{}'.format(lengthToDueDate, bestTask[1]))
+            printer.print('iter {} -> earliness: chosen task id={}, x:{},a:{}, length {}, dueDate {}, cost {}, added:{}'.
+                format(iter, bestTask[3], bestTask[0], bestTask[1], methodResult.length, methodResult.dueDate, methodResult.cost, costToAdd))
         else:
             #tardiness stage
             if not recalculatedTardinessArray:
                 #take only not assigned elements
                 tardinessArray = np.array([x for x in tardinessArray if x[3] not in tasksAssigned])
                 recalculatedTardinessArray = True 
-                if options.debug:
-                    print('tardiness: assigned {}, to assign {}'.format(tasksAssigned, tardinessArray[:,3]))
+                printer.print('tardiness: assigned {}, to assign {}'.format(tasksAssigned, tardinessArray[:,3]))
             
             tardinessArray = np.array([x for x in tardinessArray if x[6]!=1 and 
                ( instance.h>0.5 or (tasksLength-methodResult.dueDate)-methodResult.length >=0) ]) #if h>0.5 then we don't care about the size - earliness stage was first
@@ -109,20 +108,20 @@ def tradeOffMethod(instance, options):
             currentTardinessLength += bestTask[0]
             costToAdd = lengthToDueDate*bestTask[2]
             methodResult.cost += costToAdd
-            if options.debug:
-                print("adding {}*{}".format(lengthToDueDate, bestTask[2]))
-                print('iter {} -> tardiness: chosen task id={}, x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'
-                    .format(iter, bestTask[3], bestTask[0], bestTask[2], methodResult.length, methodResult.dueDate, methodResult.cost, costToAdd))
+
+            printer.print("adding {}*{}".format(lengthToDueDate, bestTask[2]))
+            printer.print('iter {} -> tardiness: chosen task id={}, x:{},b:{}, length {}, dueDate {}, cost {}, added:{}'
+                .format(iter, bestTask[3], bestTask[0], bestTask[2], methodResult.length, methodResult.dueDate, methodResult.cost, costToAdd))
 
         iter += 1
     
     tardinessAssigned.reverse()
     methodResult.order = tasksAssigned + tardinessAssigned
-    if options.debug:
-        print("assigned tasks {}".format(tasksAssigned))
+    
+    printer.print("assigned tasks {}".format(tasksAssigned))
     #if arguments['n'] > 20:
     #    tasksAssigned = []
-    if options.debug:
-        print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, methodResult.length, methodResult.dueDate, methodResult.cost))
+    
+    printer.print('ended on iteration {}, length {}, dueDate {}, cost {}'.format(iter, methodResult.length, methodResult.dueDate, methodResult.cost))
 
     return methodResult
