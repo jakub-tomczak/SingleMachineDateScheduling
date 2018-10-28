@@ -142,7 +142,7 @@ class debugPrinter:
     def __init__(self, instance, options):
         self.instance = instance
         self.options = options
-        self.path = os.path.join(options.debugDirectory, 'DEBUG_{}_{}_{}_{}.out'.format(instance.index, instance.n, instance.k+1, int(instance.h*10))) 
+        self.path = os.path.join(options.debugDirectory, '{}_{}_{}_{}_{}.out'.format(options.debugFilename, instance.index, instance.n, instance.k+1, int(instance.h*10)))
         if options.debug:
             import time
             self.print('\n------------\n{}'.format( time.asctime(time.localtime(time.time())) ))
