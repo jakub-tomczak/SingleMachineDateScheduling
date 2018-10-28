@@ -1,6 +1,7 @@
 import os
 import json
 import numpy as np
+from options import instance
 
 def readTestFile(instanceSize, programOptions):
     assert instanceSize in programOptions.instancesSizes, 'There is no test for an instance of a size %s' % instanceSize
@@ -27,6 +28,37 @@ def getTest(instance, programOptions):
     if res is None or len(res) <= instance.k:
         exit(2) 
     return res[instance.k]
+
+
+def getBestResult(instance_to_find, best_results):
+    temp = list(filter(lambda x: x[0] == instance_to_find, best_results))
+    if len(temp) > 0:
+        num = temp[0][1]
+        is_optimal = num[-1] == '*'
+        if is_optimal:
+            return float(num[:-1]), is_optimal
+        else:
+            return float(num), is_optimal
+    else:
+        return 0
+
+
+def getBestResults(programOptions):
+    fullpath = os.path.join(programOptions.testsDirectory, programOptions.bestResultsFilename)
+    results = []
+    h = [.2, .4, .6, .8]
+    try:
+        with open(fullpath, 'r') as instanceFile:
+            for n in programOptions.instancesSizes:
+                # line with number n
+                instanceFile.readline()
+                for k in range(10):
+                    line = instanceFile.readline().split()
+                    [results.append((instance(n, k, h[i]), line[i])) for i in range(4)]
+            return results
+    except FileNotFoundError:
+        print('File `{}` not found.'.format(fullpath))
+        exit(1)
 
 def dumpResults(result, programOptions, comment = ''):
     methods = {
