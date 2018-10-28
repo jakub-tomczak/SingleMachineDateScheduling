@@ -146,6 +146,8 @@ class debugPrinter:
         if options.debug:
             import time
             self.print('\n------------\n{}'.format( time.asctime(time.localtime(time.time())) ))
+            if not os.path.exists(options.debugDirectory):
+                os.mkdir(options.debugDirectory)
 
     def print(self, data):
         if self.options.debug:
