@@ -63,7 +63,9 @@ def getBestResults(programOptions):
 def dumpResults(result, programOptions, comment = ''):
     methods = {
         'json' : dumpJSONResult,
-        'txt' : dumpTXTResult
+        'txt' : dumpTXTResult,
+        'csv' : dumpBatchResults,
+        'latex' : dumpLatexTable
     }
     if programOptions.dumpFormat not in methods:
         print('There is no method for this format: {}. Available types : {}'.format(programOptions.dumpFormat, methods.keys))
@@ -102,11 +104,39 @@ def dumpJSONResult(result, options, comment):
         json.dump(data, outFile, indent=1)
 
 def dumpTXTResult(result, options, comment):
-    path = os.path.join(options.outputDirectory, 'sch_{}_{}_{}_{}.out'.format(result.instance.index, result.instance.n, result.instance.k+1, int(result.instance.h*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
+    path = os.path.join(options.outputDirectory, '{}_{}_{}_{}_{}.out'.format(options.txtFilename, result.instance.index, result.instance.n, result.instance.k+1, int(result.instance.h*10))) #arguments['k']+1 => pwdk in out file should be in range <1, 10>
     data = "{}\n{}".format(int(result.cost), " ".join(map(str, result.order)) )
 
     with open(path, 'w') as outFile:
         outFile.write(data)
+
+
+def dumpBatchResults(result, options, comment):
+    path = os.path.join(options.outputDirectory, '{}.csv'.format(options.batchRunnerFilename))
+    with open(path, 'w') as outFile:
+        [outFile.write(resultToString(x, 'csv')) for x in result]
+
+
+def dumpLatexTable(result, options, comment):
+    path = os.path.join(options.outputDirectory, '{}.latex'.format(options.batchRunnerFilename))
+
+    with open(path, 'w') as outFile:
+        [outFile.write(resultToString(result[x], 'latex', x+1)) for x in range(len(result))]
+
+
+def resultToString(result, file_format, num = 0):
+    assert file_format in ['csv', 'latex'], 'File format should be csv or latex. {} is not supported.'.\
+        format(file_format)
+    result.instance.k = result.instance.k+1
+    if file_format == 'csv':
+        return '{};{};{};{};{};{};{}\n'.format(result.instance.n, result.instance.k, result.instance.h,
+                                             result.instance.best_cost, result.cost,
+                                             round((result.cost - result.instance.best_cost)/result.cost * 100, 2),
+                                             result.time)
+    else:
+        return '{} & {} & {} & {} & {}{} & {} & {} & {} \\\ \hline\n'.format(num, result.instance.n, result.instance.k,
+            result.instance.h, result.instance.best_cost, '*' if result.instance.best_cost_is_optimal else '',
+            result.cost, round((result.cost - result.instance.best_cost) / result.cost * 100, 2), round(result.time, 4))
 
 class debugPrinter:
     def __init__(self, instance, options):
