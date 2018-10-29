@@ -6,9 +6,9 @@ class Options:
         self.output_directory = ''
         self.debug_directory = 'out_debug'
         self.instances_sizes = [10, 20, 50, 100, 200, 500, 1000]
-        self.dump_results = False
+        self.dump_results = True
         self.dump_format = "txt"
-        self.txt_filename = "text_file"
+        self.txt_filename = "sch"
         self.debug_filename = "DEBUG_second"
         self.debug = False  # dump debug to a file
         self.verbose_debug = False  # print text during debug
