@@ -45,7 +45,7 @@ def parse_arguments():
     return Instance(n=args.n, k=args.k - 1, h=args.h)
 
 
-def main(args_instance, best_results, program_options):
+def check_one_instance(args_instance, best_results, program_options):
     program_options.method = trade_off_method
     printer = DebugPrinter(args_instance, program_options)
     if best_results is not None:
@@ -117,12 +117,3 @@ def check_all_instances(program_options, best_results):
 
     if program_options.dump_batch_runner:
         dump_results(results, program_options)
-
-
-if __name__ == '__main__':
-    args_instance = parse_arguments()
-    program_options = Options()
-    best_results = get_best_results(program_options)
-    main(args_instance, best_results, program_options)
-    #check_all_instances(program_options, best_results)
-    exit(0)
