@@ -13,7 +13,7 @@ def read_test_file(instance_size, program_options):
             number_of_tests = int(instanceFile.readline().strip())
             # 4th element for an index, 5th for an earliness penalty,
             # 6th for a tardiness penalty, 7th 0-task not used, 1-task used
-            tests = np.empty((number_of_tests, instance_size, 7))
+            tests = np.zeros((number_of_tests, instance_size, 7))
             for test in range(number_of_tests):
                 number_of_lines_in_test = int(instanceFile.readline().strip())
                 for lineIndex in range(number_of_lines_in_test):
