@@ -85,7 +85,7 @@ def dump_results(result, program_options, comment=''):
 
 
 def dump_json_result(result, options, comment):
-    if not os.path.exists(options.output_directory):
+    if options.output_directory != '' and not os.path.exists(options.output_directory):
         os.mkdir(options.output_directory)
     path = os.path.join(options.output_directory, 'out.json')
     data = []
@@ -116,7 +116,7 @@ def dump_json_result(result, options, comment):
 
 
 def dump_txt_result(result, options, comment):
-    if not os.path.exists(options.output_directory):
+    if options.output_directory != '' and not os.path.exists(options.output_directory):
         os.mkdir(options.output_directory)
     path = os.path.join(options.output_directory,
                         '{}_{}_{}_{}_{}.out'.format(options.txt_filename, result.instance.index, result.instance.n,
@@ -168,7 +168,7 @@ class DebugPrinter:
         if options.debug:
             import time
             self.print('\n------------\n{}'.format(time.asctime(time.localtime(time.time()))))
-            if not os.path.exists(options.debug_directory):
+            if options.debug_directory != '' and not os.path.exists(options.debug_directory):
                 os.mkdir(options.debug_directory)
 
     def print(self, data):
