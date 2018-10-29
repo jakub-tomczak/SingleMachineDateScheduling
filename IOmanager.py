@@ -48,6 +48,8 @@ def get_best_result(instance_to_find, best_results):
 
 
 def get_best_results(program_options):
+    if not program_options.compare_with_best_results:
+        return None
     fullpath = os.path.join(program_options.tests_directory, program_options.best_results_filename)
     results = []
     h = [.2, .4, .6, .8]

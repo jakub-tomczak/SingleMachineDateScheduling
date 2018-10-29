@@ -10,8 +10,9 @@ class Options:
         self.dump_format = "txt"
         self.txt_filename = "text_file"
         self.debug_filename = "DEBUG_second"
-        self.debug = True  # dump debug to a file
+        self.debug = False  # dump debug to a file
         self.verbose_debug = False  # print text during debug
+        self.compare_with_best_results = False
         self.best_results_filename = "best_results.txt"
         self.dump_batch_runner = False
         self.batch_runner_filename = "batch"

@@ -48,7 +48,8 @@ def parse_arguments():
 def main(args_instance, best_results, program_options):
     program_options.method = trade_off_method
     printer = DebugPrinter(args_instance, program_options)
-    args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
+    if best_results is not None:
+        args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
     try:
         validate_input(args_instance, program_options)
     except AssertionError as e:
@@ -56,7 +57,7 @@ def main(args_instance, best_results, program_options):
         exit(2)
     result = instance_runner(args_instance, program_options, printer)
     print('method: {}'.format(program_options.method.__name__))
-    if result.is_solution_feasible:
+    if result.is_solution_feasible and program_options.compare_with_best_results:
         print('cost: {}, optimal_cost {}{}, {}%'.
               format(result.cost, args_instance.best_cost,
                      '*' if args_instance.best_cost_is_optimal else '',
@@ -93,13 +94,14 @@ def check_all_instances(program_options, best_results):
     program_options.dump_format = 'csv'
 
     for n in program_options.instances_sizes:
-        for k in range(10):
+        for k in range(10): # [4, 9]
             for h in [.2, .4, .6, .8]:
                 current_instance = Instance(n, k, h)
                 printer = DebugPrinter(current_instance, program_options)
                 print('n {} k {}, h {}'.format(n, k, h))
-                current_instance.best_cost, current_instance.best_cost_is_optimal = \
-                    get_best_result(current_instance, best_results)
+                if program_options.compare_with_best_results:
+                    current_instance.best_cost, current_instance.best_cost_is_optimal = \
+                        get_best_result(current_instance, best_results)
 
                 result = instance_runner(current_instance, program_options, printer)
                 results.append(result)
@@ -121,6 +123,6 @@ if __name__ == '__main__':
     args_instance = parse_arguments()
     program_options = Options()
     best_results = get_best_results(program_options)
-    main(args_instance, best_results, program_options)
-    # check_all_instances(program_options, best_results)
+    # main(args_instance, best_results, program_options)
+    check_all_instances(program_options, best_results)
     exit(0)
