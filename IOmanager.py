@@ -85,6 +85,8 @@ def dump_results(result, program_options, comment=''):
 
 
 def dump_json_result(result, options, comment):
+    if not os.path.exists(options.output_directory):
+        os.mkdir(options.output_directory)
     path = os.path.join(options.output_directory, 'out.json')
     data = []
     if os.path.exists(path):
@@ -114,6 +116,8 @@ def dump_json_result(result, options, comment):
 
 
 def dump_txt_result(result, options, comment):
+    if not os.path.exists(options.output_directory):
+        os.mkdir(options.output_directory)
     path = os.path.join(options.output_directory,
                         '{}_{}_{}_{}_{}.out'.format(options.txt_filename, result.instance.index, result.instance.n,
                                                     result.instance.k + 1, int(result.instance.h * 10)))
