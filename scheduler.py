@@ -1,6 +1,7 @@
 import argparse
 from method_runner import invoke_method
-from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results
+from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results, \
+    get_out_filename_from_instance
 from heuristics import trade_off_method, second_method
 from options import Instance, Options
 from validator import validate_result
@@ -22,7 +23,8 @@ def instance_runner(instance, program_options, debug_printer):
     if result is not None and program_options.print_result_to_stdout:
         print('Time is {:0.9f} the result (cost): {}'.format(result.time, result.cost))
         if program_options.dump_results:
-            dump_results(result, program_options)
+            dump_results(result, program_options, '{}_{}'.format(program_options.txt_filename,
+                                                                 get_out_filename_from_instance(result.instance)))
     else:
         print('Execution time is {:0.20f}'.format(result.time))
 
@@ -116,4 +118,4 @@ def check_all_instances(program_options, best_results):
         print('All instances calculated correctly')
 
     if program_options.dump_batch_runner:
-        dump_results(results, program_options)
+        dump_results(results, program_options, program_options.batch_runner_filename)

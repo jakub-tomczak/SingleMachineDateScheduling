@@ -1,7 +1,7 @@
 import os
 import json
 import numpy as np
-from options import Instance
+from options import Instance, Result
 
 
 def read_test_file(instance_size, program_options):
@@ -67,27 +67,28 @@ def get_best_results(program_options):
         exit(1)
 
 
-def dump_results(result, program_options, comment=''):
+def dump_results(result, program_options, filename, comment=''):
     methods = {
         'json': dump_json_result,
+        'out': dump_txt_result,
         'txt': dump_txt_result,
         'csv': dump_batch_results,
-        'latex': dump_latex_table
+        'latex': dump_batch_results
     }
     if program_options.dump_format not in methods:
         print('There is no method for this format: {}. Available types : {}'.format(program_options.dump_format,
-                                                                                    methods.keys))
+                                                                                    ', '.join(methods.keys())))
     else:
         try:
-            methods[program_options.dump_format](result, program_options, comment)
+            methods[program_options.dump_format](result, program_options, filename, comment)
         except:
             exit(2)
 
 
-def dump_json_result(result, options, comment):
+def dump_json_result(result, options, filename, comment):
     if options.output_directory != '' and not os.path.exists(options.output_directory):
         os.mkdir(options.output_directory)
-    path = os.path.join(options.output_directory, 'out.json')
+    path = os.path.join(options.output_directory, '{}.{}'.format(filename, options.dump_format))
     data = []
     if os.path.exists(path):
         with open(path, 'r') as inFile:
@@ -115,29 +116,24 @@ def dump_json_result(result, options, comment):
         json.dump(data, outFile, indent=1)
 
 
-def dump_txt_result(result, options, comment):
+def dump_txt_result(result, options, filename, comment):
     if options.output_directory != '' and not os.path.exists(options.output_directory):
         os.mkdir(options.output_directory)
     path = os.path.join(options.output_directory,
-                        '{}_{}_{}_{}_{}.out'.format(options.txt_filename, result.instance.index, result.instance.n,
-                                                    result.instance.k + 1, int(result.instance.h * 10)))
+                        '{}.{}'.format(filename, options.dump_format))
     data = "{}\n{}".format(int(result.cost), " ".join(map(str, result.order)))
 
     with open(path, 'w') as outFile:
         outFile.write(data)
 
 
-def dump_batch_results(result, options, comment):
-    path = os.path.join(options.output_directory, '{}.csv'.format(options.batch_runner_filename))
+def dump_batch_results(result, options, filename, comment):
+    path = os.path.join(options.output_directory, '{}.{}'.format(filename, options.dump_format))
     with open(path, 'w') as outFile:
-        [outFile.write(result_to_string(x, 'csv')) for x in result]
-
-
-def dump_latex_table(result, options, comment):
-    path = os.path.join(options.output_directory, '{}.latex'.format(options.batch_runner_filename))
-
-    with open(path, 'w') as outFile:
-        [outFile.write(result_to_string(result[x], 'latex', x + 1)) for x in range(len(result))]
+        if isinstance(result, list):
+            [outFile.write(result_to_string(x, options.dump_format)) for x in result]
+        elif isinstance(result, Result):
+            outFile.write(result_to_string(result, options.dump_format))
 
 
 def result_to_string(result, file_format, num=0):
@@ -156,6 +152,10 @@ def result_to_string(result, file_format, num=0):
                                                                              '*' if result.instance.best_cost_is_optimal else '',
                                                                              result.cost, round(
                 (result.cost - result.instance.best_cost) / result.cost * 100, 2), round(result.time, 4))
+
+
+def get_out_filename_from_instance(instance):
+    return '{}_{}_{}_{}'.format(instance.index, instance.n, instance.k + 1, int(instance.h * 10))
 
 
 class DebugPrinter:
