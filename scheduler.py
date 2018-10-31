@@ -1,11 +1,11 @@
 import argparse
 from method_runner import invoke_method
 from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results, \
-    get_out_filename_from_instance
+    get_out_filename_from_instance, compare_with_best_cost
 from heuristics import trade_off_method, second_method
 from options import Instance, Options
 from validator import validate_result
-
+import numpy as np
 
 def print_instance(instance):
     for i in range(len(instance)):
@@ -63,7 +63,7 @@ def check_one_instance(args_instance, best_results, program_options):
         print('cost: {}, optimal_cost {}{}, {}%'.
               format(result.cost, args_instance.best_cost,
                      '*' if args_instance.best_cost_is_optimal else '',
-                     round((result.cost - args_instance.best_cost) / result.cost * 100, 2)))
+                     round(compare_with_best_cost(result), 2)))
 
 
 def validate_input(instance, program_options):
@@ -119,3 +119,5 @@ def check_all_instances(program_options, best_results):
 
     if program_options.dump_batch_runner:
         dump_results(results, program_options, program_options.batch_runner_filename)
+    stats = list(map(lambda x: compare_with_best_cost(x), results))
+    print('mean = {}\nmin = {}\nmax = {}'.format(np.mean(stats), min(stats), max(stats)))

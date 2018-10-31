@@ -143,19 +143,22 @@ def result_to_string(result, file_format, num=0):
     if file_format == 'csv':
         return '{};{};{};{};{};{};{}\n'.format(result.instance.n, result.instance.k, result.instance.h,
                                                result.instance.best_cost, result.cost,
-                                               round((result.cost - result.instance.best_cost) / result.cost * 100, 2),
+                                               round(compare_with_best_cost(result), 2),
                                                result.time)
     else:
         return '{} & {} & {} & {} & {}{} & {} & {} & {} \\\ \hline\n'.format(num, result.instance.n, result.instance.k,
                                                                              result.instance.h,
                                                                              result.instance.best_cost,
                                                                              '*' if result.instance.best_cost_is_optimal else '',
-                                                                             result.cost, round(
-                (result.cost - result.instance.best_cost) / result.cost * 100, 2), round(result.time, 4))
+                                                                             result.cost, round(compare_with_best_cost(result), 2), round(result.time, 4))
 
 
 def get_out_filename_from_instance(instance):
     return '{}_{}_{}_{}'.format(instance.index, instance.n, instance.k + 1, int(instance.h * 10))
+
+
+def compare_with_best_cost(result):
+    return (result.cost - result.instance.best_cost) / result.cost * 100
 
 
 class DebugPrinter:
