@@ -174,6 +174,9 @@ class DebugPrinter:
             if options.debug_directory != '' and not os.path.exists(options.debug_directory):
                 os.mkdir(options.debug_directory)
 
+    def dump_instance(self):
+        self.print(self.instance)
+
     def print(self, data):
         if self.options.debug:
             data = '{}\n'.format(data)

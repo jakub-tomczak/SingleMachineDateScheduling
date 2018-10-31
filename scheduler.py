@@ -18,6 +18,7 @@ def instance_runner(instance, program_options, debug_printer):
     instance.data = get_test(instance, program_options)
     method_to_invoke = program_options.method
 
+    debug_printer.dump_instance()
     result = invoke_method(method_to_invoke, instance, debug_printer)
 
     if result is not None and program_options.print_result_to_stdout:

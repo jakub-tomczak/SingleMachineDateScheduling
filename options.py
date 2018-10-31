@@ -34,6 +34,11 @@ class Instance:
             return self.n == other.n and self.k == other.k and self.h == other.h
         return False
 
+    def __str__(self):
+        return 'n:{}, k:{}, h:{}, total length:{}, best cost {}, is optimal? {}'.\
+            format(self.n, self.k, self.h,
+                   sum(self.data[:, 0]) if self.data is not None else -1, self.best_cost, self.best_cost_is_optimal)
+
 
 class Result:
     def __init__(self, instance):
