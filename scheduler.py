@@ -48,13 +48,13 @@ def parse_arguments():
 
 
 def check_one_instance(args_instance, best_results, program_options):
+    program_options.method = trade_off_method
     try:
         validate_input(args_instance, program_options)
     except AssertionError as e:
         print(e)
         exit(2)
-        
-    program_options.method = trade_off_method
+
     printer = DebugPrinter(args_instance, program_options)
     if best_results is not None:
         args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
