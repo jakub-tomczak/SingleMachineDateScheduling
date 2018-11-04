@@ -2,7 +2,7 @@ import zipfile
 import os
 
 if __name__ == '__main__':
-    instances_dir = "Instances"
+    instances_dir = "instances"
     python_files_to_package = ["__main__.py", "heuristics.py", "IOmanager.py", "method_runner.py",
                         "options.py", "scheduler.py", "validator.py"]
     instances_files_to_package = [os.path.join(instances_dir, x) for x in os.listdir(instances_dir)]
