@@ -12,7 +12,7 @@ class Options:
         self.debug_filename = "DEBUG_second"
         self.debug = False  # dump debug to a file
         self.verbose_debug = False  # print text during debug
-        self.compare_with_best_results = False
+        self.compare_with_best_results = True
         self.best_results_filename = "best_results.txt"
         self.dump_batch_runner = False
         self.batch_runner_filename = "batch"
