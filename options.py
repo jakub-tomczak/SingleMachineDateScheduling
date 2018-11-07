@@ -12,7 +12,7 @@ class Options:
         self.debug_filename = "DEBUG_second"
         self.debug = False  # dump debug to a file
         self.verbose_debug = False  # print text during debug
-        self.compare_with_best_results = False
+        self.compare_with_best_results = True
         self.best_results_filename = "best_results.txt"
         self.dump_batch_runner = False
         self.batch_runner_filename = "batch"
@@ -33,6 +33,11 @@ class Instance:
         if isinstance(other, Instance):
             return self.n == other.n and self.k == other.k and self.h == other.h
         return False
+
+    def __str__(self):
+        return 'n:{}, k:{}, h:{}, total length:{}, best cost {}, is optimal? {}'.\
+            format(self.n, self.k, self.h,
+                   sum(self.data[:, 0]) if self.data is not None else -1, self.best_cost, self.best_cost_is_optimal)
 
 
 class Result:

@@ -1,11 +1,11 @@
 import argparse
 from method_runner import invoke_method
 from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results, \
-    get_out_filename_from_instance
+    get_out_filename_from_instance, compare_with_best_cost
 from heuristics import trade_off_method, second_method
 from options import Instance, Options
 from validator import validate_result
-
+import numpy as np
 
 def print_instance(instance):
     for i in range(len(instance)):
@@ -18,6 +18,7 @@ def instance_runner(instance, program_options, debug_printer):
     instance.data = get_test(instance, program_options)
     method_to_invoke = program_options.method
 
+    debug_printer.dump_instance()
     result = invoke_method(method_to_invoke, instance, debug_printer)
 
     if result is not None and program_options.print_result_to_stdout:
@@ -49,21 +50,22 @@ def parse_arguments():
 
 def check_one_instance(args_instance, best_results, program_options):
     program_options.method = trade_off_method
-    printer = DebugPrinter(args_instance, program_options)
-    if best_results is not None:
-        args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
     try:
         validate_input(args_instance, program_options)
     except AssertionError as e:
         print(e)
         exit(2)
+
+    printer = DebugPrinter(args_instance, program_options)
+    if best_results is not None:
+        args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
     result = instance_runner(args_instance, program_options, printer)
     print('method: {}'.format(program_options.method.__name__))
     if result.is_solution_feasible and program_options.compare_with_best_results:
         print('cost: {}, optimal_cost {}{}, {}%'.
               format(result.cost, args_instance.best_cost,
                      '*' if args_instance.best_cost_is_optimal else '',
-                     round((result.cost - args_instance.best_cost) / result.cost * 100, 2)))
+                     round(compare_with_best_cost(result), 2)))
 
 
 def validate_input(instance, program_options):
@@ -89,7 +91,7 @@ def check_all_instances(program_options, best_results):
     results = []
 
     program_options.dump_results = False
-    program_options.method = trade_off_method
+    program_options.method = second_method
     program_options.debug = False
     program_options.batch_runner_filename = 'batch_{}_method'.format(program_options.method.__name__)
     program_options.dump_batch_runner = True
@@ -119,3 +121,5 @@ def check_all_instances(program_options, best_results):
 
     if program_options.dump_batch_runner:
         dump_results(results, program_options, program_options.batch_runner_filename)
+    stats = list(map(lambda x: compare_with_best_cost(x), results))
+    print('mean = {}\nmin = {}\nmax = {}'.format(np.mean(stats), min(stats), max(stats)))
