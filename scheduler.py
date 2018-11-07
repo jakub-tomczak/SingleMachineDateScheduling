@@ -91,7 +91,7 @@ def check_all_instances(program_options, best_results):
     results = []
 
     program_options.dump_results = False
-    program_options.method = trade_off_method
+    program_options.method = second_method
     program_options.debug = False
     program_options.batch_runner_filename = 'batch_{}_method'.format(program_options.method.__name__)
     program_options.dump_batch_runner = True
