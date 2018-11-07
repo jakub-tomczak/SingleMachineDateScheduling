@@ -49,7 +49,7 @@ def parse_arguments():
 
 
 def check_one_instance(args_instance, best_results, program_options):
-    program_options.method = trade_off_method
+    program_options.method = second_method
     try:
         validate_input(args_instance, program_options)
     except AssertionError as e:
