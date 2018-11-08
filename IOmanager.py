@@ -158,7 +158,7 @@ def get_out_filename_from_instance(instance):
 
 
 def compare_with_best_cost(result):
-    return (result.cost - result.instance.best_cost) / result.cost * 100
+    return (result.cost - result.instance.best_cost) / result.instance.best_cost * 100
 
 
 class DebugPrinter:
