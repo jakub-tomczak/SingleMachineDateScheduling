@@ -160,7 +160,7 @@ def second_method(instance, debug_printer):
         best_tardiness_option = tardiness_array[tardiness_iter]
         tardiness_option_penalty = abs(due_date - (total_length - tardiness_length)) * best_tardiness_option[2]
 
-        debug_printer.print(
+        debug_printer.log(
             'cost {}, length {}\nearliness option id {} x {} a {} b {} earliness penalty {}, earliness ratio x/a {} x/b {}\ntardiness option id {} x {} a {} b {} tardiness penalty {}, tardiness ratio x/a {} x/b {}'
             .format(method_result.cost, method_result.length,
                     best_earliness_option[3], best_earliness_option[0], best_earliness_option[1],
@@ -176,7 +176,7 @@ def second_method(instance, debug_printer):
             earliness_length += add_task_to_array(best_earliness_option, method_result, earliness_order,
                                                   earliness_option_penalty, already_assigned_tasks,
                                                   debug_printer)
-            debug_printer.print(
+            debug_printer.log(
                 'earliness priority, earliness len {}, tardiness len {}'.format(earliness_length, tardiness_length))
             earliness_iter += 1
             continue
@@ -184,7 +184,7 @@ def second_method(instance, debug_printer):
             tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                   tardiness_option_penalty, already_assigned_tasks,
                                                   debug_printer)
-            debug_printer.print(
+            debug_printer.log(
                 'tardiness priority, earliness len {}, tardiness len {}'.format(earliness_length, tardiness_length))
             tardiness_iter += 1
             continue
@@ -193,7 +193,7 @@ def second_method(instance, debug_printer):
             if earliness_length + best_earliness_option[0] <= due_date:
                 earliness_length += add_task_to_array(best_earliness_option, method_result, earliness_order,
                                                       earliness_option_penalty, already_assigned_tasks, debug_printer)
-                debug_printer.print('earliness length is ok, earliness len {}, tardiness len {}'
+                debug_printer.log('earliness length is ok, earliness len {}, tardiness len {}'
                                     .format(earliness_length, tardiness_length))
                 earliness_iter += 1
             else:
@@ -206,7 +206,7 @@ def second_method(instance, debug_printer):
                                         best_tardiness_option[1]
                     earliness_length += add_task_to_array(best_tardiness_option, method_result, earliness_order,
                                                           earliness_penalty, already_assigned_tasks, debug_printer)
-                    debug_printer.print(
+                    debug_printer.log(
                         'earliness length is not ok (corrected earliness, earliness len {}, tardiness len {}'
                             .format(earliness_length, tardiness_length))
                     earliness_iter += 1
@@ -214,7 +214,7 @@ def second_method(instance, debug_printer):
                     tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                           tardiness_option_penalty, already_assigned_tasks,
                                                           debug_printer)
-                    debug_printer.print(
+                    debug_printer.log(
                         'earliness length is not ok, earliness len {}, tardiness len {}'
                             .format(earliness_length, tardiness_length))
                     tardiness_iter += 1
@@ -222,7 +222,7 @@ def second_method(instance, debug_printer):
             if tardiness_length <= (total_length - due_date) and best_tardiness_option[5] >= best_earliness_option[4]:
                 tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                       tardiness_option_penalty, already_assigned_tasks, debug_printer)
-                debug_printer.print('tardiness length is ok, earliness len {}, tardiness len {}'
+                debug_printer.log('tardiness length is ok, earliness len {}, tardiness len {}'
                                     .format(earliness_length, tardiness_length))
                 tardiness_iter += 1
             else:
@@ -233,13 +233,13 @@ def second_method(instance, debug_printer):
                     tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                           tardiness_option_penalty, already_assigned_tasks,
                                                           debug_printer)
-                    debug_printer.print('2tardiness length is ok, earliness len {}, tardiness len {}'
+                    debug_printer.log('2tardiness length is ok, earliness len {}, tardiness len {}'
                                         .format(earliness_length, tardiness_length))
                     tardiness_iter += 1
                 else:
                     earliness_length += add_task_to_array(best_earliness_option, method_result, earliness_order,
                                                           earliness_option_penalty, already_assigned_tasks, debug_printer)
-                    debug_printer.print('tardiness length is not ok, earliness len {}, tardiness len {}'
+                    debug_printer.log('tardiness length is not ok, earliness len {}, tardiness len {}'
                                         .format(earliness_length, tardiness_length))
                     earliness_iter += 1
 
@@ -249,7 +249,7 @@ def second_method(instance, debug_printer):
 
 def add_task_to_array(task, method_result, order_array, penalty, already_assigned_tasks, debug_printer):
     if task[3] in already_assigned_tasks:
-        debug_printer.print("task {} already taken".format(task[3]))
+        debug_printer.log("task {} already taken".format(task[3]))
         return 0  # add 0 to the length, but increase iterator
     method_result.cost += penalty
     order_array.append(int(task[3]))  # append id

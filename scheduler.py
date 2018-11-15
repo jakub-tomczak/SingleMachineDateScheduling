@@ -1,8 +1,8 @@
 import argparse
 from method_runner import invoke_method
 from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results, \
-    get_out_filename_from_instance, compare_with_best_cost
-from heuristics import trade_off_method, second_method
+    get_out_filename_from_instance, compare_with_best_cost, GeneralPrint, ExceptionPrinter
+from heuristics import second_method
 from options import Instance, Options
 from validator import validate_result
 import numpy as np
@@ -22,19 +22,19 @@ def instance_runner(instance, program_options, debug_printer):
     result = invoke_method(method_to_invoke, instance, debug_printer)
 
     if result is not None and program_options.print_result_to_stdout:
-        print('Time is {:0.9f} the result (cost): {}'.format(result.time, result.cost))
+        GeneralPrint.print_data('Time is {:0.9f} the result (cost): {}'.format(result.time, result.cost))
         if program_options.dump_results:
             dump_results(result, program_options, '{}_{}'.format(program_options.txt_filename,
                                                                  get_out_filename_from_instance(result.instance)))
     else:
-        print('Execution time is {:0.20f}'.format(result.time))
+        GeneralPrint.print_data('Execution time is {:0.20f}'.format(result.time))
 
     validated_result = validate_result(instance, result.order)
     result.is_solution_feasible = validated_result.cost == result.cost
     if not result.is_solution_feasible:
-        print("Result is not equal to validated result: {} != {}".format(result.cost, validated_result.cost))
+        GeneralPrint.print_data("Result is not equal to validated result: {} != {}".format(result.cost, validated_result.cost))
     else:
-        print("Feasible solution")
+        GeneralPrint.print_data("Feasible solution")
     return result
 
 
@@ -53,16 +53,16 @@ def check_one_instance(args_instance, best_results, program_options):
     try:
         validate_input(args_instance, program_options)
     except AssertionError as e:
-        print(e)
+        ExceptionPrinter.print_exception(e)
         exit(2)
 
     printer = DebugPrinter(args_instance, program_options)
     if best_results is not None:
         args_instance.best_cost, args_instance.best_cost_is_optimal = get_best_result(args_instance, best_results)
     result = instance_runner(args_instance, program_options, printer)
-    print('method: {}'.format(program_options.method.__name__))
+    GeneralPrint.print_data('method: {}'.format(program_options.method.__name__))
     if result.is_solution_feasible and program_options.compare_with_best_results:
-        print('cost: {}, optimal_cost {}{}, {}%'.
+        GeneralPrint.print_data('cost: {}, optimal_cost {}{}, {}%'.
               format(result.cost, args_instance.best_cost,
                      '*' if args_instance.best_cost_is_optimal else '',
                      round(compare_with_best_cost(result), 2)))
@@ -79,10 +79,9 @@ def validate_input(instance, program_options):
 
 def check_order_manually(instance):
     instance.data = get_test(instance, Options())
-    print(instance.data[0, :])
     order = [0, 3, 6, 8, 9, 5, 4, 1, 7, 2]
     result = validate_result(instance, order)
-    print("instance n={}, k={}, h={}\nresult: {}\nlength {}".format(instance.n, instance.k, instance.h, result.cost,
+    GeneralPrint.print_data("instance n={}, k={}, h={}\nresult: {}\nlength {}".format(instance.n, instance.k, instance.h, result.cost,
                                                                     result.length))
 
 
@@ -102,7 +101,7 @@ def check_all_instances(program_options, best_results):
             for h in [.2, .4, .6, .8]:
                 current_instance = Instance(n, k, h)
                 printer = DebugPrinter(current_instance, program_options)
-                print('n {} k {}, h {}'.format(n, k, h))
+                GeneralPrint.print_data('n {} k {}, h {}'.format(n, k, h))
                 if program_options.compare_with_best_results:
                     current_instance.best_cost, current_instance.best_cost_is_optimal = \
                         get_best_result(current_instance, best_results)
@@ -113,13 +112,13 @@ def check_all_instances(program_options, best_results):
                     miscalculated_instances.append('{} {} {}'.format(n, k, h))
 
     if len(miscalculated_instances) > 0:
-        print('Miscalculated instances:')
+        GeneralPrint.print_data('Miscalculated instances:')
         for row in miscalculated_instances:
-            print(row)
+            GeneralPrint.print_data(row)
     else:
-        print('All instances calculated correctly')
+        GeneralPrint.print_data('All instances calculated correctly')
 
     if program_options.dump_batch_runner:
         dump_results(results, program_options, program_options.batch_runner_filename)
     stats = list(map(lambda x: compare_with_best_cost(x), results))
-    print('mean = {}\nmin = {}\nmax = {}'.format(np.mean(stats), min(stats), max(stats)))
+    GeneralPrint.print_data('mean = {}\nmin = {}\nmax = {}'.format(np.mean(stats), min(stats), max(stats)))

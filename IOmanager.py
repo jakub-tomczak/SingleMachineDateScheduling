@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import json
 import numpy as np
@@ -21,7 +22,7 @@ def read_test_file(instance_size, program_options):
                     tests[test][lineIndex][3] = lineIndex
             return tests
     except FileNotFoundError:
-        print('File `{}` not found.'.format(fullpath))
+        ExceptionPrinter.print_exception('File `{}` not found.'.format(fullpath))
         exit(1)
 
 
@@ -63,7 +64,7 @@ def get_best_results(program_options):
                     [results.append((Instance(n, k, h[i]), line[i])) for i in range(4)]
             return results
     except FileNotFoundError:
-        print('File `{}` not found.'.format(fullpath))
+        ExceptionPrinter.print_exception('File `{}` not found.'.format(fullpath))
         exit(1)
 
 
@@ -76,7 +77,7 @@ def dump_results(result, program_options, filename, comment=''):
         'latex': dump_batch_results
     }
     if program_options.dump_format not in methods:
-        print('There is no method for this format: {}. Available types : {}'.format(program_options.dump_format,
+        ExceptionPrinter.print_exception('There is no method for this format: {}. Available types : {}'.format(program_options.dump_format,
                                                                                     ', '.join(methods.keys())))
     else:
         try:
@@ -161,6 +162,18 @@ def compare_with_best_cost(result):
     return (result.cost - result.instance.best_cost) / result.instance.best_cost * 100
 
 
+class GeneralPrint():
+    @staticmethod
+    def print_data(data):
+        print(data)
+
+
+class ExceptionPrinter:
+    @staticmethod
+    def print_exception(data):
+        GeneralPrint.print_data('Exception: {}'.format(data))
+        
+
 class DebugPrinter:
     def __init__(self, instance, options):
         self.instance = instance
@@ -170,20 +183,20 @@ class DebugPrinter:
                                                              instance.k + 1, int(instance.h * 10)))
         if options.debug:
             import time
-            self.print('\n------------\n{}'.format(time.asctime(time.localtime(time.time()))))
+            self.log('\n------------\n{}'.format(time.asctime(time.localtime(time.time()))))
             if options.debug_directory != '' and not os.path.exists(options.debug_directory):
                 os.mkdir(options.debug_directory)
 
     def dump_instance(self):
-        self.print(self.instance)
+        self.log(self.instance)
 
-    def print(self, data):
+    def log(self, data):
         if self.options.debug:
             data = '{}\n'.format(data)
             if self.options.verbose_debug:
-                print(data)
+                GeneralPrint.print_data(data)
             try:
                 with open(self.path, 'a+') as outFile:
                     outFile.write(data)
             except Exception as e:
-                print("Couldn't dump debug data to a file {}. Cause: {}".format(self.path, e))
+                GeneralPrint.print_data("Couldn't dump debug data to a file {}. Cause: {}".format(self.path, e))
