@@ -7,12 +7,6 @@ from options import Instance, Options
 from validator import validate_result
 import numpy as np
 
-def print_instance(instance):
-    for i in range(len(instance)):
-        print('x:{}, a:{}, b:{}, index:{}, earliness:{}, tardiness:{}'.format(
-            instance[i, 0], instance[i, 1], instance[i, 2], instance[i, 3], instance[i, 4], instance[i, 5]
-        ))
-
 
 def instance_runner(instance, program_options, debug_printer):
     instance.data = get_test(instance, program_options)
