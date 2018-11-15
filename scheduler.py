@@ -33,13 +33,15 @@ def instance_runner(instance, program_options, debug_printer):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='', add_help=False)
+    parser = argparse.ArgumentParser(description='', add_help=True)
     parser.add_argument('n', type=int)
     parser.add_argument('k', type=int)
     parser.add_argument('h', type=float)
+    parser.add_argument('--all', action="store_true", 
+        help="Executes all instances, executing one instance is by default.")
     args = parser.parse_args()
     # k loaded from file should be in range <0,9>
-    return Instance(n=args.n, k=args.k - 1, h=args.h)
+    return (Instance(n=args.n, k=args.k - 1, h=args.h), args.all)
 
 
 def check_one_instance(args_instance, best_results, program_options):
