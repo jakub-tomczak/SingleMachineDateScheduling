@@ -131,7 +131,7 @@ def dump_batch_results(result, options, filename, comment):
     path = os.path.join(options.output_directory, '{}.{}'.format(filename, options.dump_format))
     with open(path, 'w') as outFile:
         if isinstance(result, list):
-            [outFile.write(result_to_string(x, options.dump_format)) for x in result]
+            [outFile.write(result_to_string(result[x], options.dump_format, num=x+1)) for x in range(len(result))]
         elif isinstance(result, Result):
             outFile.write(result_to_string(result, options.dump_format))
 
