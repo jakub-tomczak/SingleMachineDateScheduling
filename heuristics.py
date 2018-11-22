@@ -5,11 +5,11 @@ def second_method(instance, debug_printer):
     total_length = sum([x.length for x in instance.data])
     due_date = int(total_length * instance.h)
 
-    # calculate length/penalty ratios
+    # calculate float(length)/penalty ratios
     # for an earliness and tardiness
     for task in instance.data:
-        task.earliness_ratio = task.length / task.earliness_cost
-        task.tardiness_ratio = task.length / task.tardiness_cost
+        task.earliness_ratio = float(task.length) / task.earliness_cost
+        task.tardiness_ratio = float(task.length) / task.tardiness_cost
 
     earliness_array = list(
         sorted(instance.data, key=lambda task: task.earliness_ratio, reverse=True))  # sort by the earliness ratio
@@ -41,7 +41,7 @@ def second_method(instance, debug_printer):
         #             best_tardiness_option.tardiness_ratio))
 
         # if h > .5 then assign before due date, as long as remaining length before and after due date are equal
-        if instance.h > .5 and earliness_length/total_length < 2*instance.h-1:
+        if instance.h > .5 and float(earliness_length)/total_length < 2*instance.h-1:
             # assign only from beginning
             earliness_length += add_task_to_array(best_earliness_option, method_result, earliness_order,
                                                   earliness_option_penalty, already_assigned_tasks,
@@ -50,7 +50,7 @@ def second_method(instance, debug_printer):
                 'earliness priority, earliness len {}, tardiness len {}'.format(earliness_length, tardiness_length))
             earliness_iter += 1
             continue
-        if instance.h < .5 and tardiness_length/total_length < 2*(1-instance.h) - 1:
+        if instance.h < .5 and float(tardiness_length)/total_length < 2*(1-instance.h) - 1:
             tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                   tardiness_option_penalty, already_assigned_tasks,
                                                   debug_printer)
