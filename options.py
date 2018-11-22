@@ -2,17 +2,17 @@ class Options:
     def __init__(self):
         self.method = None
         self.print_result_to_stdout = True
-        self.tests_directory = 'instances'
+        self.tests_directory = ''
         self.output_directory = ''
         self.debug_directory = 'out_debug'
         self.instances_sizes = [10, 20, 50, 100, 200, 500, 1000]
         self.dump_results = True
-        self.dump_format = "txt"
+        self.dump_format = "out"
         self.txt_filename = "sch"
         self.debug_filename = "DEBUG_second"
         self.debug = False  # dump debug to a file
         self.verbose_debug = False  # print text during debug
-        self.compare_with_best_results = True
+        self.compare_with_best_results = False
         self.best_results_filename = "best_results.txt"
         self.dump_batch_runner = False
         self.batch_runner_filename = "batch"
