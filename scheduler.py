@@ -32,6 +32,9 @@ def instance_runner(instance, program_options, debug_printer):
 
 
 def parse_arguments():
+    if(len(sys.argv) < 4):
+        GeneralPrint.print_data("usage: n k h")
+        exit(1)
     n = sys.argv[1]
     k = sys.argv[2]
     h = sys.argv[3]
