@@ -1,4 +1,3 @@
-import argparse
 from method_runner import invoke_method
 from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get_best_results, \
     get_out_filename_from_instance, compare_with_best_cost, GeneralPrint, ExceptionPrinter
@@ -6,6 +5,7 @@ from heuristics import second_method
 from options import Instance, Options
 from validator import validate_result
 import numpy as np
+import sys
 
 
 def instance_runner(instance, program_options, debug_printer):
@@ -33,15 +33,20 @@ def instance_runner(instance, program_options, debug_printer):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='', add_help=True)
-    parser.add_argument('n', type=int)
-    parser.add_argument('k', type=int)
-    parser.add_argument('h', type=float)
-    parser.add_argument('--all', action="store_true", 
-        help="Executes all instances, executing one instance is by default.")
-    args = parser.parse_args()
+    n = sys.argv[1]
+    k = sys.argv[2]
+    h = sys.argv[3]
+    all = len(sys.argv) == 5 and sys.argv[4] in ["all", "--all"]
+        
+    # parser = argparse.ArgumentParser(description='', add_help=True)
+    # parser.add_argument('n', type=int)
+    # parser.add_argument('k', type=int)
+    # parser.add_argument('h', type=float)
+    # parser.add_argument('--all', action="store_true", 
+    #     help="Executes all instances, executing one instance is by default.")
+    # args = parser.parse_args()
     # k loaded from file should be in range <0,9>
-    return (Instance(n=args.n, k=args.k - 1, h=args.h), args.all)
+    return(Instance(n=int(n), k=int(k) - 1, h=float(h)), all)
 
 
 def check_one_instance(args_instance, best_results, program_options):
