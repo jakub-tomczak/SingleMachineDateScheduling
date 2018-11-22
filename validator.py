@@ -23,20 +23,21 @@ def validate_result(instance, order):
                 .format(err))
         return Result(instance)
     validation_result = calculate_ordering_cost(instance, order)
-    assert validation_result.length == sum(instance.data[:, 0]), "Total length is not correct"
+    assert validation_result.length == sum([x.length for x in instance.data]), "Total length is not correct"
     return validation_result
 
 
 def calculate_ordering_cost(instance, order):
     validation_result = Result(instance)
     validate_result.order = order
-    total_length = sum(instance.data[:, 0])
+    total_length = sum([x.length for x in instance.data])
     due_date = int(instance.h * total_length)
     for item in order:
-        validation_result.length += instance.data[item, 0]
+        task = list(filter(lambda x : x.task_index == item, instance.data))[0]
+        validation_result.length += task.length
         distance_to_due_date = abs(due_date - validation_result.length)
         if validation_result.length <= due_date:
-            validation_result.cost += distance_to_due_date * instance.data[item, 1]  # penalty for an earliness
+            validation_result.cost += distance_to_due_date * task.earliness_cost  # penalty for an earliness
         else:
-            validation_result.cost += distance_to_due_date * instance.data[item, 2]  # penalty for a tardiness
+            validation_result.cost += distance_to_due_date * task.tardiness_cost  # penalty for a tardiness
     return validation_result

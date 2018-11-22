@@ -36,8 +36,8 @@ class Instance:
 
     def __str__(self):
         return 'n:{}, k:{}, h:{}, total length:{}, best cost {}, is optimal? {}'.\
-            format(self.n, self.k, self.h,
-                   sum(self.data[:, 0]) if self.data is not None else -1, self.best_cost, self.best_cost_is_optimal)
+            format(self.n, self.k+1, self.h,
+                   sum([x.length for x in self.data]) if self.data is not None else -1, self.best_cost, self.best_cost_is_optimal)
 
 
 class Result:
@@ -50,3 +50,13 @@ class Result:
         self.dueDate = 0
         self.instance = instance
         self.is_solution_feasible = False
+
+
+class Task:
+    def __init__(self, params, task_index):
+        self.length = int(params[0])
+        self.earliness_cost = int(params[1])
+        self.tardiness_cost = int(params[2])
+        self.earliness_ratio = 0
+        self.tardiness_ratio = 0
+        self.task_index = int(task_index)

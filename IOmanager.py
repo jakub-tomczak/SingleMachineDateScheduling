@@ -1,8 +1,6 @@
 from __future__ import print_function
 import os
-import json
-import numpy as np
-from options import Instance, Result
+from options import Instance, Result, Task
 
 
 def read_test_file(instance_size, program_options):
@@ -12,14 +10,11 @@ def read_test_file(instance_size, program_options):
     try:
         with open(fullpath, 'r') as instanceFile:
             number_of_tests = int(instanceFile.readline().strip())
-            # 4th element for an index, 5th for an earliness penalty,
-            # 6th for a tardiness penalty, 7th 0-task not used, 1-task used
-            tests = np.zeros((number_of_tests, instance_size, 7))
+            tests = list()
             for test in range(number_of_tests):
                 number_of_lines_in_test = int(instanceFile.readline().strip())
                 for lineIndex in range(number_of_lines_in_test):
-                    tests[test][lineIndex][:3] = instanceFile.readline().split()  # set first 3 elements
-                    tests[test][lineIndex][3] = lineIndex
+                    tests.append(Task(instanceFile.readline().split(), lineIndex))
             return tests
     except FileNotFoundError:
         ExceptionPrinter.print_exception('File `{}` not found.'.format(fullpath))
@@ -32,7 +27,8 @@ def get_test(instance, program_options):
     res = read_test_file(instance.n, program_options)
     if res is None or len(res) <= instance.k:
         exit(2)
-    return res[instance.k]
+    start_index = instance.n*instance.k
+    return [res[x] for x in range(start_index, start_index+instance.n)]
 
 
 def get_best_result(instance_to_find, best_results):
@@ -70,7 +66,6 @@ def get_best_results(program_options):
 
 def dump_results(result, program_options, filename, comment=''):
     methods = {
-        'json': dump_json_result,
         'out': dump_txt_result,
         'txt': dump_txt_result,
         'csv': dump_batch_results,
@@ -84,38 +79,6 @@ def dump_results(result, program_options, filename, comment=''):
             methods[program_options.dump_format](result, program_options, filename, comment)
         except:
             exit(2)
-
-
-def dump_json_result(result, options, filename, comment):
-    if options.output_directory != '' and not os.path.exists(options.output_directory):
-        os.mkdir(options.output_directory)
-    path = os.path.join(options.output_directory, '{}.{}'.format(filename, options.dump_format))
-    data = []
-    if os.path.exists(path):
-        with open(path, 'r') as inFile:
-            inFile.seek(0, 2)  # go the end
-            size = inFile.tell()
-            inFile.seek(0, 0)  # return to the beginning
-            if size > 0:
-                try:
-                    data = json.load(inFile)
-                except json.decoder.JSONDecodeError:
-                    pass  # content may be not a valid json content
-    data.append({
-        'time': result.time,
-        'cost': result.cost,
-        'length': result.length,
-        'dueDate': result.dueDate,
-        'h': result.instance.h,
-        'k': result.instance.k,
-        'n': result.instance.n,
-        'comment': result.instance.index,
-        'assignmentOrder': result.order
-    })
-
-    with open(path, 'w') as outFile:
-        json.dump(data, outFile, indent=1)
-
 
 def dump_txt_result(result, options, filename, comment):
     if options.output_directory != '' and not os.path.exists(options.output_directory):
@@ -159,6 +122,8 @@ def get_out_filename_from_instance(instance):
 
 
 def compare_with_best_cost(result):
+    if(result.instance.best_cost == 0):
+        return 0
     return (result.cost - result.instance.best_cost) / result.instance.best_cost * 100
 
 

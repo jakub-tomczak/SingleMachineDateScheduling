@@ -1,22 +1,20 @@
-import numpy as np
 from options import Result
-from validator import calculate_ordering_cost
-
 
 def second_method(instance, debug_printer):
     method_result = Result(instance)
-    total_length = sum(instance.data[:, 0])
+    total_length = sum([x.length for x in instance.data])
     due_date = int(total_length * instance.h)
 
     # calculate length/penalty ratios
-    # for an earliness
-    instance.data[:, 4] = instance.data[:, 0] / instance.data[:, 1]
-    # for a tardiness
-    instance.data[:, 5] = instance.data[:, 0] / instance.data[:, 2]
-    earliness_array = np.array(
-        sorted(instance.data, key=lambda task: task[4], reverse=True))  # sort by the earliness ratio
-    tardiness_array = np.array(
-        sorted(instance.data, key=lambda task: task[5], reverse=True))  # sort by the tardiness ratio
+    # for an earliness and tardiness
+    for task in instance.data:
+        task.earliness_ratio = task.length / task.earliness_cost
+        task.tardiness_ratio = task.length / task.tardiness_cost
+
+    earliness_array = list(
+        sorted(instance.data, key=lambda task: task.earliness_ratio, reverse=True))  # sort by the earliness ratio
+    tardiness_array = list(
+        sorted(instance.data, key=lambda task: task.tardiness_ratio, reverse=True))  # sort by the tardiness ratio
     earliness_order = []
     tardiness_order = []
     already_assigned_tasks = []
@@ -27,20 +25,20 @@ def second_method(instance, debug_printer):
 
     while method_result.length < total_length:
         best_earliness_option = earliness_array[earliness_iter]
-        earliness_option_penalty = abs(due_date - earliness_length - best_earliness_option[0]) * best_earliness_option[1]
+        earliness_option_penalty = abs(due_date - earliness_length - best_earliness_option.length) * best_earliness_option.earliness_cost
 
         best_tardiness_option = tardiness_array[tardiness_iter]
-        tardiness_option_penalty = abs(due_date - (total_length - tardiness_length)) * best_tardiness_option[2]
+        tardiness_option_penalty = abs(due_date - (total_length - tardiness_length)) * best_tardiness_option.tardiness_cost
 
-        debug_printer.log(
-            'cost {}, length {}\nearliness option id {} x {} a {} b {} earliness penalty {}, earliness ratio x/a {} x/b {}\ntardiness option id {} x {} a {} b {} tardiness penalty {}, tardiness ratio x/a {} x/b {}'
-            .format(method_result.cost, method_result.length,
-                    best_earliness_option[3], best_earliness_option[0], best_earliness_option[1],
-                    best_earliness_option[2], earliness_option_penalty, best_earliness_option[4],
-                    best_earliness_option[5],
-                    best_tardiness_option[3], best_tardiness_option[0], best_tardiness_option[1],
-                    best_tardiness_option[2], tardiness_option_penalty, best_tardiness_option[4],
-                    best_tardiness_option[5]))
+        # debug_printer.log(
+        #     'cost {}, length {}\nearliness option id {} x {} a {} b {} earliness penalty {}, earliness ratio x/a {} x/b {}\ntardiness option id {} x {} a {} b {} tardiness penalty {}, tardiness ratio x/a {} x/b {}'
+        #     .format(method_result.cost, method_result.length,
+        #             best_earliness_option.task_index, best_earliness_option.length, best_earliness_option.earliness_cost,
+        #             best_earliness_option.tardiness_cost, earliness_option_penalty, best_earliness_option.earliness_ratio,
+        #             best_earliness_option.tardiness_ratio,
+        #             best_tardiness_option.task_index, best_tardiness_option.length, best_tardiness_option.earliness_cost,
+        #             best_tardiness_option.tardiness_cost, tardiness_option_penalty, best_tardiness_option.earliness_ratio,
+        #             best_tardiness_option.tardiness_ratio))
 
         # if h > .5 then assign before due date, as long as remaining length before and after due date are equal
         if instance.h > .5 and earliness_length/total_length < 2*instance.h-1:
@@ -62,7 +60,7 @@ def second_method(instance, debug_printer):
             continue
 
         if earliness_option_penalty < tardiness_option_penalty:
-            if earliness_length + best_earliness_option[0] <= due_date:
+            if earliness_length + best_earliness_option.length <= due_date:
                 earliness_length += add_task_to_array(best_earliness_option, method_result, earliness_order,
                                                       earliness_option_penalty, already_assigned_tasks, debug_printer)
                 debug_printer.log('earliness length is ok, earliness len {}, tardiness len {}'
@@ -71,11 +69,11 @@ def second_method(instance, debug_printer):
             else:
                 # use best tardiness option in earliness part only when best
                 # tardiness option fits earliness part and tardiness length is longer than tardiness part
-                if earliness_length + best_tardiness_option[0] <= due_date \
+                if earliness_length + best_tardiness_option.length <= due_date \
                         and tardiness_length > (total_length - due_date):
                     # calculate an earliness penalty using best tardiness option
-                    earliness_penalty = (due_date - earliness_length - best_tardiness_option[0]) * \
-                                        best_tardiness_option[1]
+                    earliness_penalty = (due_date - earliness_length - best_tardiness_option.length) * \
+                                        best_tardiness_option.earliness_cost
                     earliness_length += add_task_to_array(best_tardiness_option, method_result, earliness_order,
                                                           earliness_penalty, already_assigned_tasks, debug_printer)
                     debug_printer.log(
@@ -91,14 +89,14 @@ def second_method(instance, debug_printer):
                             .format(earliness_length, tardiness_length))
                     tardiness_iter += 1
         else:
-            if tardiness_length <= (total_length - due_date) and best_tardiness_option[5] >= best_earliness_option[4]:
+            if tardiness_length <= (total_length - due_date) and best_tardiness_option.tardiness_ratio >= best_earliness_option.earliness_ratio:
                 tardiness_length += add_task_to_array(best_tardiness_option, method_result, tardiness_order,
                                                       tardiness_option_penalty, already_assigned_tasks, debug_printer)
                 debug_printer.log('tardiness length is ok, earliness len {}, tardiness len {}'
                                     .format(earliness_length, tardiness_length))
                 tardiness_iter += 1
             else:
-                if earliness_length + best_earliness_option[0] > due_date:
+                if earliness_length + best_earliness_option.length > due_date:
                     earliness_iter += 1
                     if tardiness_length > (total_length - due_date):
                         continue
@@ -120,11 +118,11 @@ def second_method(instance, debug_printer):
 
 
 def add_task_to_array(task, method_result, order_array, penalty, already_assigned_tasks, debug_printer):
-    if task[3] in already_assigned_tasks:
-        debug_printer.log("task {} already taken".format(task[3]))
+    if task.task_index in already_assigned_tasks:
+        debug_printer.log("task {} already taken".format(task.task_index))
         return 0  # add 0 to the length, but increase iterator
     method_result.cost += penalty
-    order_array.append(int(task[3]))  # append id
-    method_result.length += task[0]  # add length of this task
-    already_assigned_tasks.append(task[3])
-    return task[0]
+    order_array.append(int(task.task_index))  # append id
+    method_result.length += task.length  # add length of this task
+    already_assigned_tasks.append(task.task_index)
+    return task.length

@@ -4,7 +4,6 @@ from IOmanager import get_test, dump_results, DebugPrinter, get_best_result, get
 from heuristics import second_method
 from options import Instance, Options
 from validator import validate_result
-import numpy as np
 import sys
 
 
@@ -94,7 +93,7 @@ def check_all_instances(program_options, best_results):
     program_options.method = second_method
     program_options.debug = False
     program_options.batch_runner_filename = 'batch_{}_method'.format(program_options.method.__name__)
-    program_options.dump_batch_runner = True
+    program_options.dump_batch_runner = False
     program_options.dump_format = 'csv'
 
     for n in program_options.instances_sizes:
@@ -121,5 +120,7 @@ def check_all_instances(program_options, best_results):
 
     if program_options.dump_batch_runner:
         dump_results(results, program_options, program_options.batch_runner_filename)
-    stats = list(map(lambda x: compare_with_best_cost(x), results))
-    GeneralPrint.print_data('mean = {}\nmin = {}\nmax = {}'.format(np.mean(stats), min(stats), max(stats)))
+
+    if program_options.compare_with_best_results:
+        stats = list(map(lambda x: compare_with_best_cost(x), results))
+        GeneralPrint.print_data('mean = {}\nmin = {}\nmax = {}'.format(sum(stats)/len(stats), min(stats), max(stats)))
